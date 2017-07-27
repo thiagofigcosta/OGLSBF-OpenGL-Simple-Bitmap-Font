@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="OGLSBF" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="../bin/OGSBF" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/codeblocks" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-std=c++11" />
+					<Add option="-g" />
+					<Add option="-Wno-sign-compare" />
+				</Compiler>
+				<Linker>
+					<Add library="../WinLibs/Lib/glut32.lib" />
+					<Add library="../WinLibs/Lib/libfreeglut.a" />
+					<Add library="../WinLibs/Lib/libfreeglut_static.a" />
+					<Add library="../WinLibs/Lib/libopengl32.a" />
+					<Add library="../WinLibs/Lib/libOpenAL32.dll.a" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="../bin/OGSBF" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/codeblocks" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-std=c++11" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="../WinLibs/Lib/glut32.lib" />
+					<Add library="../WinLibs/Lib/libfreeglut.a" />
+					<Add library="../WinLibs/Lib/libfreeglut_static.a" />
+					<Add library="../WinLibs/Lib/libOpenAL32.dll.a" />
+					<Add library="../WinLibs/Lib/libopengl32.a" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add directory="$(#glut.include)" />
+		</Compiler>
+		<Linker>
+			<Add library="glut32" />
+			<Add library="opengl32" />
+			<Add library="glu32" />
+			<Add library="winmm" />
+			<Add library="gdi32" />
+			<Add directory="$(#glut.lib)" />
+		</Linker>
+		<Unit filename="../scr/nTFont.cpp" />
+		<Unit filename="../scr/nTFont.hpp" />
+		<Unit filename="../scr/nTFontChar.cpp" />
+		<Unit filename="../scr/nTFontChar.hpp" />
+		<Unit filename="../scr/soil/SOIL.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../scr/soil/SOIL.h" />
+		<Unit filename="../scr/soil/image_DXT.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../scr/soil/image_DXT.h" />
+		<Unit filename="../scr/soil/image_helper.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../scr/soil/image_helper.h" />
+		<Unit filename="../scr/soil/stb_image_aug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="../scr/soil/stb_image_aug.h" />
+		<Unit filename="../scr/soil/stbi_DDS_aug.h" />
+		<Unit filename="../scr/soil/stbi_DDS_aug_c.h" />
+		<Unit filename="drawFonts.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
