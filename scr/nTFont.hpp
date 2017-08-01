@@ -81,6 +81,7 @@ using namespace std;
 class nTFont {
 public:
     nTFont();
+    nTFont(bool invertx,bool inverty);
     nTFont(const nTFont& orig);
     virtual ~nTFont();
 
@@ -93,6 +94,8 @@ public:
     void drawCentered_MultilineX_Y_Text(string text, nTPoint pos, nTColor color);
     nTPoint calcBoundaries(string text);
 
+    bool invertX;
+    bool invertY;
     string name;
     int size;
 private:

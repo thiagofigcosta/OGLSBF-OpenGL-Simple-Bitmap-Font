@@ -1,6 +1,20 @@
 #include "nTFont.hpp"
 #include "nTFontChar.hpp"
 
+nTFont::nTFont(bool invertx,bool inverty) {
+    bitmapTexture=0;
+    imgSizex=0;
+    imgSizey=0;
+    name="";
+    size=0;
+    lineHeight=0;
+    invertX=invertx;
+    invertY=inverty;
+    chars.reserve(256);
+    for(int i=0;i<256;i++)
+        chars.push_back(nullptr);
+};
+
 nTFont::nTFont() {
     bitmapTexture=0;
     imgSizex=0;
@@ -8,6 +22,8 @@ nTFont::nTFont() {
     name="";
     size=0;
     lineHeight=0;
+    invertX=false;
+    invertY=true;
     chars.reserve(256);
     for(int i=0;i<256;i++)
         chars.push_back(nullptr);
@@ -20,11 +36,11 @@ nTFont::~nTFont() {
 }
 
 /**
- *	Get an integer from a font body string
+ *  Get an integer from a font body string
  *
- *	@param str the font body string
- *	@param start start position to get the integer
- *	@return the founded integer
+ *  @param str the font body string
+ *  @param start start position to get the integer
+ *  @return the founded integer
 **/
 int nTFont::getIntFromField(string str, int start){
     string number="";
@@ -40,11 +56,11 @@ int nTFont::getIntFromField(string str, int start){
 }
 
 /**
- *	Get an string from a font body string
+ *  Get an string from a font body string
  *
- *	@param str the font body string
- *	@param start start position to get the string
- *	@return the founded string
+ *  @param str the font body string
+ *  @param start start position to get the string
+ *  @return the founded string
 **/
 string nTFont::getStrFromField(string str, int start){
     int startstr=-1;
@@ -61,10 +77,10 @@ string nTFont::getStrFromField(string str, int start){
 }
 
 /**
- *	Load a bitmap font file
+ *  Load a bitmap font file
  *
- *	@param path path to the bitmap font
- *	@return the address of the font object loaded
+ *  @param path path to the bitmap font
+ *  @return the address of the font object loaded
 **/
 nTFont* nTFont::loadFont(string path){
     string texturepath;
@@ -158,11 +174,11 @@ nTFont* nTFont::loadFont(string path){
 }
 
 /**
- *	Draw a text on the screen using this font
+ *  Draw a text on the screen using this font
  *
- *	@param text the text to be written
- *	@param pos the start position of the text
- *	@param color the font color of the text
+ *  @param text the text to be written
+ *  @param pos the start position of the text
+ *  @param color the font color of the text
 **/
 void nTFont::drawText(string text, nTPoint pos, nTColor color){
     float xMargin=pos.x;
@@ -171,10 +187,16 @@ void nTFont::drawText(string text, nTPoint pos, nTColor color){
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, bitmapTexture);
     glBegin(GL_QUADS);
+    if(!invertY)
+        pos.y+=2*lineHeight;
     for(int i=0;i<text.size();i++){
         if(text[i]=='\n'){
             pos.x=xMargin;
-            pos.y+=lineHeight;
+            if(invertY){
+                pos.y+=lineHeight;
+            }else{
+                pos.y-=lineHeight;
+            }
         }else{
             cchar=nullptr;
             int charValue=(int)text[i];
@@ -194,14 +216,45 @@ void nTFont::drawText(string text, nTPoint pos, nTColor color){
                     float p0y=pos.y+cchar->offsetY-lineHeight;
                     float p1x=p0x+cchar->width;
                     float p1y=p0y+cchar->height;
-                    glTexCoord2f(cchar->textureCoords[1], cchar->textureCoords[2]); glVertex3f(p1x, p0y, pos.z);
-                    glTexCoord2f(cchar->textureCoords[0], cchar->textureCoords[2]); glVertex3f(p0x, p0y, pos.z);
-                    glTexCoord2f(cchar->textureCoords[0], cchar->textureCoords[3]); glVertex3f(p0x, p1y, pos.z);
-                    glTexCoord2f(cchar->textureCoords[1], cchar->textureCoords[3]); glVertex3f(p1x, p1y, pos.z);
+                    if(invertY){
+                        if(invertX){
+                            p0x=pos.x-cchar->offsetX;
+                            p1x=p0x-cchar->width;
+                            glTexCoord2f(cchar->textureCoords[0], cchar->textureCoords[2]); glVertex3f(p0x, p0y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[1], cchar->textureCoords[2]); glVertex3f(p1x, p0y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[1], cchar->textureCoords[3]); glVertex3f(p1x, p1y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[0], cchar->textureCoords[3]); glVertex3f(p0x, p1y, pos.z);
+                        }else{
+                            glTexCoord2f(cchar->textureCoords[1], cchar->textureCoords[2]); glVertex3f(p1x, p0y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[0], cchar->textureCoords[2]); glVertex3f(p0x, p0y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[0], cchar->textureCoords[3]); glVertex3f(p0x, p1y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[1], cchar->textureCoords[3]); glVertex3f(p1x, p1y, pos.z);
+                        }
+                    }else{
+                        p0y=pos.y-cchar->offsetY-lineHeight;
+                        p1y=p0y-cchar->height;
+                        if(invertX){
+                            p0x=pos.x-cchar->offsetX;
+                            p1x=p0x-cchar->width;
+                            glTexCoord2f(cchar->textureCoords[0], cchar->textureCoords[3]); glVertex3f(p0x, p1y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[1], cchar->textureCoords[3]); glVertex3f(p1x, p1y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[1], cchar->textureCoords[2]); glVertex3f(p1x, p0y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[0], cchar->textureCoords[2]); glVertex3f(p0x, p0y, pos.z);
+                        }else{
+                            glTexCoord2f(cchar->textureCoords[1], cchar->textureCoords[2]); glVertex3f(p1x, p0y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[0], cchar->textureCoords[2]); glVertex3f(p0x, p0y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[0], cchar->textureCoords[3]); glVertex3f(p0x, p1y, pos.z);
+                            glTexCoord2f(cchar->textureCoords[1], cchar->textureCoords[3]); glVertex3f(p1x, p1y, pos.z);
+                        }
+                    }
+                    
                 }else if(cchar->Character!=' '){
                     cout<<"Cant print "<<*cchar<<"with "<<*this;
                 }
-                pos.x+=cchar->advance;
+                if(invertX)
+                    pos.x-=cchar->advance;
+                else 
+                    pos.x+=cchar->advance;
             }else{
                cout<<"Unknown character \'"<<text[i]<<"\' with "<<*this;
             }
@@ -212,21 +265,28 @@ void nTFont::drawText(string text, nTPoint pos, nTColor color){
 }
 
 /**
- *	Calculates the size of the text using this font
+ *  Calculates the size of the text using this font
  *
- *	@param text the text to be calculated
- *	@return the size of the text
+ *  @param text the text to be calculated
+ *  @return the size of the text
 **/
 nTPoint nTFont::calcBoundaries(string text){
     nTPoint pos=nTPoint::Origin();
     float maXX=0;
+    if(invertX)
+        maXX=65000;
     nTFontChar* cchar;
     for(int i=0;i<text.size();i++){
         if(text[i]=='\n'){
-            if(pos.x>maXX)
+            if((invertX&&pos.x<maXX)||(!invertX&&pos.x>maXX)){
                 maXX=pos.x;
-            pos.x=0;
-            pos.y+=lineHeight;
+                pos.x=0;
+            }
+            if(invertY){
+                pos.y+=lineHeight;
+            }else{
+                pos.y-=lineHeight;
+            }
         }else{
             cchar=nullptr;
             int charValue=(int)text[i];
@@ -241,25 +301,38 @@ nTPoint nTFont::calcBoundaries(string text){
             }else
                 cchar=(nTFontChar*)chars[charValue];
                 if(cchar!=nullptr){
-                pos.x+=cchar->advance;
+                    if(invertX)
+                        pos.x-=cchar->advance;
+                    else
+                        pos.x+=cchar->advance;
             }else{
                 cout<<"Unknown character \'"<<text[i]<<"\' with "<<*this;
             }
         }
     }
-    if(pos.x>maXX)
-        maXX=pos.x;
-    pos.y-=lineHeight;
+    if(invertX){
+        if(pos.x<maXX)
+            maXX=pos.x;
+    }else{
+        if(pos.x>maXX)
+            maXX=pos.x;
+    }
+   
+    if(invertY){
+        pos.y-=lineHeight;
+    }else{
+        pos.y+=lineHeight;
+    }
     pos.x=maXX;
     return pos;
 }
 
 /**
- *	Draw a text centering its x position on the screen using this font
+ *  Draw a text centering its x position on the screen using this font
  *
- *	@param text the text to be written
- *	@param pos the start position of the text
- *	@param color the font color of the text
+ *  @param text the text to be written
+ *  @param pos the start position of the text
+ *  @param color the font color of the text
 **/
 void nTFont::drawCentered_X_Text(string text, nTPoint pos, nTColor color){
     nTPoint size=calcBoundaries(text);
@@ -268,11 +341,11 @@ void nTFont::drawCentered_X_Text(string text, nTPoint pos, nTColor color){
 }
 
 /**
- *	Draw a text centering its y position on the screen using this font
+ *  Draw a text centering its y position on the screen using this font
  *
- *	@param text the text to be written
- *	@param pos the start position of the text
- *	@param color the font color of the text
+ *  @param text the text to be written
+ *  @param pos the start position of the text
+ *  @param color the font color of the text
 **/
 void nTFont::drawCentered_Y_Text(string text, nTPoint pos, nTColor color){
     nTPoint size=calcBoundaries(text);
@@ -281,11 +354,11 @@ void nTFont::drawCentered_Y_Text(string text, nTPoint pos, nTColor color){
 }
 
 /**
- *	Draw a text centering its x and y position on the screen using this font
+ *  Draw a text centering its x and y position on the screen using this font
  *
- *	@param text the text to be written
- *	@param pos the start position of the text
- *	@param color the font color of the text
+ *  @param text the text to be written
+ *  @param pos the start position of the text
+ *  @param color the font color of the text
 **/
 void nTFont::drawCentered_X_Y_Text(string text, nTPoint pos, nTColor color){
     nTPoint size=calcBoundaries(text);
@@ -295,30 +368,35 @@ void nTFont::drawCentered_X_Y_Text(string text, nTPoint pos, nTColor color){
 }
 
 /**
- *	Draw a text centering its x position for each line on the screen using this font
+ *  Draw a text centering its x position for each line on the screen using this font
  *
- *	@param text the text to be written
- *	@param pos the start position of the text
- *	@param color the font color of the text
+ *  @param text the text to be written
+ *  @param pos the start position of the text
+ *  @param color the font color of the text
 **/
 void nTFont::drawCentered_MultilineX_Text(string text, nTPoint pos, nTColor color){
     int lastSlashN=0;
     for(int i=0;i<=text.size();i++){
         if(i==text.size()||text[i]=='\n'){
             drawCentered_X_Text(text.substr(lastSlashN,i-lastSlashN),pos,color);
-            if(lastSlashN)
-                pos.y+=lineHeight;
+            if(lastSlashN){
+                if(invertY){
+                    pos.y+=lineHeight;
+                }else{
+                    pos.y-=lineHeight;
+                }
+            }
             lastSlashN=i;
         }
     }
 }
 
 /**
- *	Draw a text centering its x position for each line and its y position on the screen using this font
+ *  Draw a text centering its x position for each line and its y position on the screen using this font
  *
- *	@param text the text to be written
- *	@param pos the start position of the text
- *	@param color the font color of the text
+ *  @param text the text to be written
+ *  @param pos the start position of the text
+ *  @param color the font color of the text
 **/
 void nTFont::drawCentered_MultilineX_Y_Text(string text, nTPoint pos, nTColor color){
     nTPoint size=calcBoundaries(text);
@@ -327,12 +405,12 @@ void nTFont::drawCentered_MultilineX_Y_Text(string text, nTPoint pos, nTColor co
 }
 
 /**
- *	Modify the operator << to print this type of objects
- *	The parameters are passed automatically
+ *  Modify the operator << to print this type of objects
+ *  The parameters are passed automatically
  *
- *	@param strm current string stream
- *	@param font object address
- *	@return the old stream plus the object toString
+ *  @param strm current string stream
+ *  @param font object address
+ *  @return the old stream plus the object toString
 **/
 ostream& operator<<(ostream &strm, const nTFont &font){
     nTFont *fnt=(nTFont*)&font;

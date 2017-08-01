@@ -1,7 +1,7 @@
 CC=g++
 SRC=$(wildcard *.cpp) $(wildcard ../scr/*.cpp) $(wildcard ../scr/soil/*.c) 
-EXEC=..\bin\OGSBF
-CFLAGS=-c -Wall  -std=c++11
+EXEC=../bin/OGSBF
+CFLAGS=-std=c++11
 LDFLAGS=-lglut -lGLU -lGL
 
 all: make run
